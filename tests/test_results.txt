@@ -1,0 +1,31 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\AI_Projects\GenAi_Projects\presentation_rag
+plugins: anyio-4.10.0, langsmith-0.4.29
+collected 9 items
+
+tests/test_api.py::test_health_returns_200                          PASSED [ 11%]
+tests/test_api.py::test_health_schema                               PASSED [ 22%]
+tests/test_api.py::test_ingest_rejects_non_pdf                      PASSED [ 33%]
+tests/test_api.py::test_ingest_rejects_empty_filename               PASSED [ 44%]
+tests/test_api.py::test_query_rejects_empty_question                PASSED [ 55%]
+tests/test_api.py::test_query_rejects_top_k_zero                    PASSED [ 66%]
+tests/test_api.py::test_query_rejects_top_k_too_large               PASSED [ 77%]
+tests/test_api.py::test_query_returns_valid_schema_without_ingested_data PASSED [ 88%]
+tests/test_api.py::test_query_default_top_k                         PASSED [100%]
+
+============================== 9 passed in 61.36s ==============================
+
+Test command:
+  pytest tests/ -v
+
+What each test covers:
+  test_health_returns_200                          GET /health returns HTTP 200
+  test_health_schema                               /health response has status, ollama_model fields
+  test_ingest_rejects_non_pdf                      POST /ingest with non-PDF content returns 400
+  test_ingest_rejects_empty_filename               POST /ingest with .docx extension returns 400
+  test_query_rejects_empty_question                POST /query with empty string returns 422
+  test_query_rejects_top_k_zero                    POST /query with top_k=0 returns 422
+  test_query_rejects_top_k_too_large               POST /query with top_k=21 returns 422
+  test_query_returns_valid_schema_without_ingested_data  Query on empty collection returns 200 with valid schema
+  test_query_default_top_k                         top_k defaults to 5 when not provided
