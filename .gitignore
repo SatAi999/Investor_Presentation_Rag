@@ -1,0 +1,24 @@
+# Environment
+.env
+
+# Qdrant local database
+qdrant_data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Streamlit
+.streamlit/
+
+# Evaluation output (generated at runtime)
+evaluation/eval_results.json
+
+# OS
+.DS_Store
+Thumbs.db

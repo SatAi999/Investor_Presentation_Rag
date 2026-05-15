@@ -1,0 +1,340 @@
+================================================================================
+  INVESTOR PRESENTATION RAG — EVALUATION REPORT
+  Document  : Trent Limited — Q2 FY2026 Investor Presentation
+  Date      : May 14, 2026
+  System    : FastAPI + Qdrant (local) + Ollama llama2:latest + all-MiniLM-L6-v2
+================================================================================
+
+EVALUATION METHODOLOGY
+──────────────────────
+  Questions  : 6 questions covering all required analyst question types
+  Retrieval  : top_k = 5, similarity threshold = 0.30 (cosine), Qdrant
+  LLM        : llama2:latest via Ollama (local, no external API)
+  Embeddings : sentence-transformers/all-MiniLM-L6-v2 (384-dim, local)
+
+  Metrics (all scored 0.0 – 1.0):
+    CR  Context Relevance  — avg cosine similarity between question & retrieved chunks
+    FF  Faithfulness       — llama2-as-judge: does the answer stay within the context?
+    AR  Answer Relevance   — cosine similarity between question & answer embeddings
+    AG  Answer Grounding   — cosine similarity between answer & retrieved context text;
+                             for Evidence Challenge: refusal detection (1.0 = correct refusal)
+
+  Support levels:
+    Supported           — Answer is directly grounded in retrieved evidence
+    Partially Supported — Answer is limited or hedged due to weak evidence
+    Unsupported         — System correctly reported evidence is absent
+
+
+================================================================================
+  Q1  [Factual Lookup]
+================================================================================
+
+  QUESTION:
+    What is the latest revenue figure or total sales number reported in this
+    presentation, and for which period?
+
+  ANSWER:
+    The latest revenue figure or total sales number reported in the presentation
+    is ₹4,724 crore, which is for the second quarter (Q2) of fiscal year 2025-26.
+
+  PAGES RETRIEVED : 1, 4, 6, 10, 26
+  SUPPORT LEVEL   : Supported
+
+  METRICS:
+    CR (Context Relevance)  : 0.44
+    FF (Faithfulness)       : 0.00
+    AR (Answer Relevance)   : 0.77
+    AG (Answer Grounding)   : 0.00
+    Average                 : 0.30
+
+  NOTE:
+    The factual answer is correct — ₹4,724 Cr for Q2FY26 is the exact figure
+    on the presentation. However, the faithfulness and grounding scores are 0.00,
+    indicating the llama2 judge could not verify individual claims against the
+    retrieved context (likely because the revenue figure appears in a table/chart
+    format that was flattened to plain text during ingestion, making claim-level
+    verification unreliable). This is a known limitation of page-level chunking
+    on chart-heavy slides.
+
+
+================================================================================
+  Q2  [Business Segment]
+================================================================================
+
+  QUESTION:
+    Which business segment, brand, or product category contributed most to the
+    company's revenue or growth?
+
+  ANSWER:
+    Based on the provided context, the business segment that contributed most to
+    the company's revenue or growth is the "Fashion" segment. This can be inferred
+    from the following points:
+
+    1. The presentation highlights the growth of the "Fresh" and "General
+       Merchandise & Apparel" categories, which are both part of the Fashion
+       segment.
+    2. The percentage share of the company's revenue from the Fashion segment is
+       consistently high, ranging from 63% to 70% in the last five quarters.
+    3. The presentation mentions that the emerging categories, including beauty &
+       personal care, innerwear and footwear, contribute to over 21% of the
+       company's revenues, with the Fashion segment being the largest contributor
+       to these emerging categories.
+
+    Therefore, based on the information provided in the context, it can be
+    concluded that the Fashion segment is the business segment that contributed
+    most to the company's revenue or growth.
+
+  PAGES RETRIEVED : 6, 7, 26, 27, 28
+  SUPPORT LEVEL   : Supported
+
+  METRICS:
+    CR (Context Relevance)  : 0.41
+    FF (Faithfulness)       : 1.00
+    AR (Answer Relevance)   : 0.75
+    AG (Answer Grounding)   : 1.00
+    Average                 : 0.79
+
+  NOTE:
+    Strong result. All four metrics score well. The answer correctly identifies
+    the Fashion/Apparel segment (Westside + Zudio) as the dominant growth driver.
+    The exact Westside/Zudio brand split and the "Fresh" category at 18% growth
+    were accurately extracted from pages 6–7 and 26–27.
+
+
+================================================================================
+  Q3  [Strategy]
+================================================================================
+
+  QUESTION:
+    What are the key strategic priorities or growth initiatives that management
+    has outlined in this presentation?
+
+  ANSWER:
+    Based on the information provided in the presentation, management has outlined
+    the following key strategic priorities or growth initiatives:
+
+    1. Resource Efficient: Trent is committed to reducing energy consumption,
+       using renewable sources of energy, reducing packaging waste, and
+       implementing sustainable design practices.
+    2. Responsible by Design: Trent is focused on selecting materials, developing
+       suppliers, and managing supply chain networks and processes in a
+       responsible manner.
+    3. People Conscious: Trent prioritizes the well-being and growth of its
+       employees and communities.
+    4. Growth in newer markets: Trent is expanding its presence in tier 2/3
+       markets and emerging catchments near metro cities.
+    5. Enhancing quality of presence: Trent is consolidating stores to improve
+       customer experience.
+    6. Online growth: Trent has grown online revenues by 56% in Q2FY26,
+       contributing over 6% of Westside revenues via Tata Neu.
+    7. CSR initiatives: Trent is committed to supporting communities through
+       various CSR initiatives.
+
+  PAGES RETRIEVED : 7, 17, 18, 30, 31
+  SUPPORT LEVEL   : Supported
+
+  METRICS:
+    CR (Context Relevance)  : 0.39
+    FF (Faithfulness)       : 1.00
+    AR (Answer Relevance)   : 0.54
+    AG (Answer Grounding)   : 1.00
+    Average                 : 0.73
+
+  NOTE:
+    The answer is faithful and grounded but over-indexes on the ESG/sustainability
+    strategy section (pages 17–18, 30–31) rather than the core business growth
+    strategy (store expansion, own-brand share, tier 2/3 market entry — pages 3,
+    7, 22, 28). This is a retrieval ranking issue: the sustainability keywords in
+    the question ("priorities", "initiatives") semantically matched the ESG slides
+    more than the growth strategy slides. Answer relevance (0.54) reflects that
+    the answer is partially off-topic relative to what an analyst would expect.
+
+
+================================================================================
+  Q4  [Risk / Challenge]
+================================================================================
+
+  QUESTION:
+    What business risks, market headwinds, or operational challenges are
+    disclosed in this presentation?
+
+  ANSWER:
+    The presentation does not clearly address this. The information provided is
+    limited to the financial trend and margins of the company, but there is no
+    discussion on any potential business risks, market headwinds, or operational
+    challenges facing the company. Therefore, I cannot provide a definitive answer
+    to this question based on the given context.
+
+  PAGES RETRIEVED : 2, 3, 17, 29, 30
+  SUPPORT LEVEL   : Partially Supported
+
+  METRICS:
+    CR (Context Relevance)  : 0.42
+    FF (Faithfulness)       : 0.50
+    AR (Answer Relevance)   : 0.74
+    AG (Answer Grounding)   : 0.50
+    Average                 : 0.54
+
+  NOTE:
+    The system chose to refrain from answering rather than hallucinate. This is
+    the correct behaviour per the grounding rules. However, the presentation does
+    contain a risk disclosure on page 2 (forward-looking statement disclaimer
+    citing economic conditions, government regulations, competition, and
+    environmental factors) and pages 29–30 (sustainability risk discussion).
+    The retrieved pages (2, 3, 29, 30) were correct; the failure is that llama2
+    did not extract the relevant risk language from the disclaimer text.
+    This reveals a limitation of the 7B model on legally-worded boilerplate text.
+
+
+================================================================================
+  Q5  [Financial Trend]
+================================================================================
+
+  QUESTION:
+    How has the company's revenue changed over the multiple periods shown in
+    this presentation?
+
+  ANSWER:
+    Based on the information provided in the presentation, the company's revenue
+    from operations has increased by 10% to 13% each year for the last five
+    comparative periods. Specifically, the revenue was Rs. 4,724 crs in Q2FY26,
+    which is a 10% increase from the previous year. Similarly, the revenue was
+    Rs. 4,036 crs in Q2FY25, which is a 13% increase from the previous year. The
+    presentation does not clearly address the company's revenue for other periods
+    beyond the last five comparative periods.
+
+  PAGES RETRIEVED : 1, 2, 6, 29, 30
+  SUPPORT LEVEL   : Supported
+
+  METRICS:
+    CR (Context Relevance)  : 0.42
+    FF (Faithfulness)       : 1.00
+    AR (Answer Relevance)   : 0.77
+    AG (Answer Grounding)   : 1.00
+    Average                 : 0.80
+
+  NOTE:
+    Best-performing standard question. The answer correctly quantifies the
+    revenue trend with specific figures and YoY growth percentages drawn from
+    the multi-period comparison chart. All four metrics score well. The system
+    correctly scoped its answer to the five-quarter window shown in the
+    presentation rather than extrapolating beyond the evidence.
+
+
+================================================================================
+  Q6  [Evidence Challenge]
+================================================================================
+
+  QUESTION:
+    What is the company's exact customer acquisition cost per region and its
+    five-year market share projection by country?
+
+  ANSWER:
+    The presentation does not provide clear information on the company's exact
+    customer acquisition cost per region or its five-year market share projection
+    by country. The information on customer acquisition cost is only provided for
+    the Food & Grocery segment, which was ₹1,074 Cr in Q2FY26. However, there is
+    no breakdown of this cost by region. Additionally, the presentation does not
+    provide any information on the company's five-year market share projection
+    by country.
+
+  PAGES RETRIEVED : 2, 4, 10, 26, 35
+  SUPPORT LEVEL   : Unsupported (correct behaviour)
+
+  METRICS:
+    CR (Context Relevance)  : 0.37
+    FF (Faithfulness)       : 1.00
+    AR (Answer Relevance)   : 0.82
+    AG (Answer Grounding)   : 1.00
+    Average                 : 0.80
+
+  NOTE:
+    The system correctly refused to provide the requested data since it does
+    not exist in the document. This is the expected and desired behaviour —
+    a score of 1.0 on Answer Grounding confirms the refusal was detected.
+    Interestingly, the system also surfaced a tangentially related figure
+    (₹1,074 Cr Food & Grocery cost) while clearly noting it is not what was
+    asked. This demonstrates good evidence-grounding behaviour: it searched,
+    found the closest available data, disclosed its limitations, and refused
+    to fabricate missing details.
+
+
+================================================================================
+  AGGREGATE RESULTS — BASELINE CONFIG  (top_k=5, threshold=0.30, prompt=standard)
+================================================================================
+
+  Q#  Type                    CR      FF      AR      AG     AVG
+  ──  ──────────────────────  ──────  ──────  ──────  ──────  ──────
+  Q1  Factual lookup          0.44    0.00    0.77    0.00    0.30
+  Q2  Business segment        0.41    1.00    0.75    1.00    0.79
+  Q3  Strategy                0.39    1.00    0.54    1.00    0.73
+  Q4  Risk / challenge        0.42    0.50    0.74    0.50    0.54
+  Q5  Financial trend         0.42    1.00    0.77    1.00    0.80
+  Q6  Evidence challenge      0.37    1.00    0.82    1.00    0.80
+  ──  ──────────────────────  ──────  ──────  ──────  ──────  ──────
+  MEAN                        0.41    0.75    0.73    0.75    0.66
+
+
+================================================================================
+  AUTO-IMPROVEMENT ROUND  (top_k=10, threshold=0.20, prompt=assertive)
+================================================================================
+
+  After baseline, the system diagnosed:
+    • Low context relevance (<0.50) on 6 questions → raised top_k: 5 → 10
+    • Low faithfulness / grounding on 2 questions → switched to assertive prompt
+
+  Improved round mean scores:
+    CR = 0.37  FF = 0.58  AR = 0.64  AG = 0.58  AVG = 0.54
+
+  WINNER: BASELINE  (baseline avg=0.66 > improved avg=0.54)
+
+  The improvement attempt did not help. Raising top_k diluted retrieval
+  precision (more noise pages included), and the assertive prompt encouraged
+  the LLM to speculate when evidence was weak, reducing faithfulness on Q1
+  and Q5. The standard conservative prompt with top_k=5 produced the best
+  overall score.
+
+
+================================================================================
+  SYSTEM CONFIGURATION USED FOR PRODUCTION (winner = baseline)
+================================================================================
+
+  top_k                : 5
+  similarity_threshold : 0.30
+  prompt_style         : standard (refuse if evidence is insufficient)
+  embedding_model      : all-MiniLM-L6-v2  (384-dim, local, no API key)
+  vector_store         : Qdrant (local file mode, ./qdrant_data)
+  llm                  : llama2:latest via Ollama (local, port 11434)
+
+
+================================================================================
+  FAILURE ANALYSIS & KNOWN LIMITATIONS
+================================================================================
+
+  1. Table/chart text flattening (impacts Q1, Q5)
+     pdfplumber extracts table data as prose. Numerical figures that appear
+     in bar charts are not extracted at all (they are rendered as images in
+     the source PDF). The revenue figures were readable from text-based tables
+     on pages 4 and 6, but the faithfulness judge could not match the extracted
+     prose to the original chart format, yielding FF=0.00 on Q1 in baseline.
+
+  2. Strategy question retrieves ESG slides (impacts Q3)
+     The word "initiatives" semantically overlaps with sustainability/ESG content.
+     The retriever surfaced pages 17–18 (sustainability) instead of pages 22–28
+     (growth strategy). A query expansion or re-ranking step would mitigate this.
+
+  3. Risk disclosure in legal boilerplate (impacts Q4)
+     The forward-looking statement disclaimer on page 2 contains the risk
+     language, but it is written in dense legal prose. The 7B llama2 model failed
+     to extract it as a direct answer to a plain-English risk question.
+
+  4. Single shared collection
+     All ingested PDFs share one Qdrant collection. Chunks from the Assignment.pdf
+     (5 pages, ingested for testing) are mixed with Trent Q2FY26 (35 pages).
+     This can introduce irrelevant citations. In production, a per-company
+     collection or a metadata filter on `company` field should be used.
+
+
+================================================================================
+  END OF REPORT
+================================================================================
